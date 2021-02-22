@@ -31,6 +31,8 @@ func registerEvents(s *discordgo.Session) {
 
 func registerCommands(s *discordgo.Session, cfg *config.Config) {
 	cmdHandler := commands.NewCommandHandler(cfg.Prefix)
+	
+	// func to register the errors
 	cmdHandler.OnError = func(err error, ctx *commands.Context) {
 		errEmb := &discordgo.MessageEmbed{}
 		errEmb.Title = "An Error Occurred!"

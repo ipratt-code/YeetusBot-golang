@@ -11,7 +11,5 @@ func RunWebServer() {
 	static := http.FileServer(http.Dir("./templates"))
 	http.Handle("/",static)
 
-
-
 	http.ListenAndServe(":8080", nil)
 }
