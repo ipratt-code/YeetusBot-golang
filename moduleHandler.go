@@ -1,18 +1,20 @@
 package main
+
 import (
 	"fmt"
-	
+
 	"github.com/bwmarrin/discordgo"
+	"main/internal/cmdErrors"
 	"main/internal/commands"
 	"main/internal/config"
 	"main/internal/events"
-	"main/internal/cmdErrors"
-	
+
 	//these are the modules
+	"main/modules/chatbot"
 	"main/modules/help"
-	"main/modules/pingpong"
-	"main/modules/moderation"
 	"main/modules/messages"
+	"main/modules/moderation"
+	"main/modules/pingpong"
 	"main/modules/reddit"
 )
 
@@ -27,11 +29,15 @@ func registerEvents(s *discordgo.Session) {
 
 	s.AddHandler(events.NewReadyHandler().Handler)
 	s.AddHandler(events.NewMessageHandler().Handler)
+
+	// add command module event listeners
+	s.AddHandler(chatbot.NewMessageHandler().Handler)
+	s.AddHandler(pingpong.NewMessageHandler().Handler)
 }
 
 func registerCommands(s *discordgo.Session, cfg *config.Config) {
 	cmdHandler := commands.NewCommandHandler(cfg.Prefix)
-	
+
 	// func to register the errors
 	cmdHandler.OnError = func(err error, ctx *commands.Context) {
 		errEmb := &discordgo.MessageEmbed{}
@@ -51,6 +57,7 @@ func registerCommands(s *discordgo.Session, cfg *config.Config) {
 	cmdHandler.RegisterCommand(&moderation.Ban{})
 	cmdHandler.RegisterCommand(&moderation.Unban{})
 	cmdHandler.RegisterCommand(&messages.Clear{})
+	cmdHandler.RegisterCommand(&chatbot.Chatbot{})
 	cmdHandler.RegisterCommand(&reddit.Meme{})
 	cmdHandler.RegisterCommand(&reddit.Blursedimages{})
 	cmdHandler.RegisterCommand(&reddit.Redditsearch{})

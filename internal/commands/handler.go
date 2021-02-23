@@ -66,6 +66,7 @@ func (c *CommandHandler) HandleMessage(s *discordgo.Session, e *discordgo.Messag
 		Message: e.Message,
 	}
 
+	
 	for _, mw := range c.middlewares {
 		next, err := mw.Exec(ctx, cmd)
 		if err != nil {

@@ -51,3 +51,4 @@ func (c *Clear) Exec(ctx *commands.Context) (err error) {
 	err = ctx.Session.ChannelMessagesBulkDelete(ctx.Message.ChannelID, msgIDStringList)
 	return err
 }
+
