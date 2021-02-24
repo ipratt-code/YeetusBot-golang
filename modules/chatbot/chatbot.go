@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"strings"
 	"main/internal/utils"
+	"time"
+	"context"
 )
 
 var cmdchannel = make(chan string)
@@ -38,10 +40,10 @@ func strlistfmt(l []string) string {
 // This is the help function to display the help message. Change it as you wish.
 func (c *Chatbot) Exec(ctx *commands.Context) error {
 	if (strings.ToLower(ctx.Args[0])) == "start" {
-		cmdchannel <- "start " + ctx.Message.Author.ID
+		cmdchannel <- "start " + ctx.Message.Author.ID + " " + ctx.Message.ChannelID
 		return nil
 	}else if (strings.ToLower(ctx.Args[0])) == "stop"{
-		cmdchannel <- "stop " + ctx.Message.Author.ID
+		cmdchannel <- "stop " + ctx.Message.Author.ID + " " + ctx.Message.ChannelID
 	}else{
 		return cmdErrors.BadArgumentsError([]string{"argument [start|stop]"})
 	}
@@ -50,13 +52,15 @@ func (c *Chatbot) Exec(ctx *commands.Context) error {
 }
 
 type chatbotprocess struct {
+	timeoutctx context.Context
+	cancelFunc context.CancelFunc
 	schan chan *discordgo.Session
 	echan chan *discordgo.MessageCreate
+	pchan chan bool
+
 }
 
 type ChatbotMessageHandler struct {
-	schan chan *discordgo.Session
-	echan chan *discordgo.MessageCreate
 	processMap map[string]*chatbotprocess
 
 }
@@ -68,15 +72,13 @@ func NewMessageHandler() *ChatbotMessageHandler {
 //var chatflag = false
 
 func (h *ChatbotMessageHandler) Handler(s *discordgo.Session, e *discordgo.MessageCreate) {
+    defer utils.CatchGoroutinePanic()
 	if h.processMap == nil {
     	h.processMap = make(map[string]*chatbotprocess)
 	}
-	//fmt.Printf("%+v\n", h.processMap)
-	//_, ok := h.processMap[e.Message.Author.ID]
-	//fmt.Printf("%v\n", ok)
+	go handleInstanceTimeouts(h)
 	if _, ok := h.processMap[e.Message.Author.ID]; ok && !e.Message.Author.Bot{
-		//print("owo\n")
-		//fmt.Printf("%+v", h.processMap[e.Message.Author.ID])
+		h.processMap[e.Message.Author.ID].pchan <- true
 		h.processMap[e.Message.Author.ID].schan <- s
 		h.processMap[e.Message.Author.ID].echan <- e
 	}
@@ -88,18 +90,21 @@ func (h *ChatbotMessageHandler) Handler(s *discordgo.Session, e *discordgo.Messa
 				//print("uwu\n")
 				tschan := make(chan *discordgo.Session)
 				techan := make(chan *discordgo.MessageCreate)
+				tpchan := make(chan bool)
+				timeoutctx, cancelf := context.WithTimeout(context.Background(), 5*time.Minute)
 				h.processMap[msgList[1]] = &chatbotprocess{
+					timeoutctx: timeoutctx,
+					cancelFunc: cancelf,
 					schan: tschan,
 					echan: techan,
+					pchan: tpchan,
 				}
 				msgEmb := &discordgo.MessageEmbed{} 
 				msgEmb.Title = "YeetusBot Chatbot"
 				msgEmb.Description = fmt.Sprintf("%s, Your chat has started!", utils.GetUserByID(&commands.Context{Session: s, Message: e.Message,}, msgList[1]).Mention())
 				msgEmb.Color = 0xbad8eb
-				//schan = make(chan *discordgo.Session)
-				//echan = make(chan *discordgo.MessageCreate)
-				_, _ = s.ChannelMessageSendEmbed(e.Message.ChannelID, msgEmb)
-				go chathandler(tschan, techan)
+				_, _ = s.ChannelMessageSendEmbed(msgList[2], msgEmb)
+				go chathandler(tschan, techan, tpchan, timeoutctx)
 			}else if ok {
 
 			}
@@ -107,14 +112,25 @@ func (h *ChatbotMessageHandler) Handler(s *discordgo.Session, e *discordgo.Messa
 			
 		}else if msgList[0] == "stop" {
 			if _, ok := h.processMap[msgList[1]]; ok {
-				print("a\n")
 				msgEmb := &discordgo.MessageEmbed{} 
 				msgEmb.Title = "YeetusBot Chatbot"
 				msgEmb.Description = fmt.Sprintf("%s, Your chat has stopped!", utils.GetUserByID(&commands.Context{Session: s, Message: e.Message,}, msgList[1]).Mention())
 				msgEmb.Color = 0xbad8eb
-				_, _ = s.ChannelMessageSendEmbed(e.Message.ChannelID, msgEmb)
+				_, _ = s.ChannelMessageSendEmbed(msgList[2], msgEmb)
 				delete(h.processMap, msgList[1])
 			}
+		}
+	}
+}
+
+func handleInstanceTimeouts(h *ChatbotMessageHandler) {
+	for {
+		for cp := range h.processMap {
+			select {
+			case <- h.processMap[cp].timeoutctx.Done():
+				//fmt.Println("aaa")
+				delete(h.processMap, cp)
+			} 
 		}
 	}
 }

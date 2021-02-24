@@ -22,7 +22,6 @@ func (c *PingPong) AdminRequired() bool {
 }
 
 func (c *PingPong) Exec(ctx *commands.Context) (err error) {
-	print()
 	_, err = ctx.Session.ChannelMessageSend(ctx.Message.ChannelID, "Pong!")
 	return err
 }
