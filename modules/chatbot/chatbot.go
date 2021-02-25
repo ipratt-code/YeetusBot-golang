@@ -54,9 +54,10 @@ func (c *Chatbot) Exec(ctx *commands.Context) error {
 type chatbotprocess struct {
 	timeoutctx context.Context
 	cancelFunc context.CancelFunc
-	schan chan *discordgo.Session
+	session *discordgo.Session
 	echan chan *discordgo.MessageCreate
 	pchan chan bool
+	author *discordgo.User
 
 }
 
@@ -76,10 +77,8 @@ func (h *ChatbotMessageHandler) Handler(s *discordgo.Session, e *discordgo.Messa
 	if h.processMap == nil {
     	h.processMap = make(map[string]*chatbotprocess)
 	}
-	go handleInstanceTimeouts(h)
 	if _, ok := h.processMap[e.Message.Author.ID]; ok && !e.Message.Author.Bot{
 		h.processMap[e.Message.Author.ID].pchan <- true
-		h.processMap[e.Message.Author.ID].schan <- s
 		h.processMap[e.Message.Author.ID].echan <- e
 	}
 	for msg := range cmdchannel {
@@ -88,23 +87,24 @@ func (h *ChatbotMessageHandler) Handler(s *discordgo.Session, e *discordgo.Messa
 		if msgList[0] == "start"{
 			if _, ok := h.processMap[msgList[1]]; !ok {
 				//print("uwu\n")
-				tschan := make(chan *discordgo.Session)
 				techan := make(chan *discordgo.MessageCreate)
 				tpchan := make(chan bool)
 				timeoutctx, cancelf := context.WithTimeout(context.Background(), 5*time.Minute)
 				h.processMap[msgList[1]] = &chatbotprocess{
 					timeoutctx: timeoutctx,
 					cancelFunc: cancelf,
-					schan: tschan,
+					session: s,
 					echan: techan,
 					pchan: tpchan,
+					author: utils.GetUserByID(&commands.Context{Session: s, Message: e.Message,}, msgList[1]),
 				}
 				msgEmb := &discordgo.MessageEmbed{} 
 				msgEmb.Title = "YeetusBot Chatbot"
 				msgEmb.Description = fmt.Sprintf("%s, Your chat has started!", utils.GetUserByID(&commands.Context{Session: s, Message: e.Message,}, msgList[1]).Mention())
 				msgEmb.Color = 0xbad8eb
 				_, _ = s.ChannelMessageSendEmbed(msgList[2], msgEmb)
-				go chathandler(tschan, techan, tpchan, timeoutctx)
+				go chathandler(h.processMap[msgList[1]])
+				go handleInstanceTimeouts(h, h.processMap[msgList[1]])
 			}else if ok {
 
 			}
@@ -123,14 +123,13 @@ func (h *ChatbotMessageHandler) Handler(s *discordgo.Session, e *discordgo.Messa
 	}
 }
 
-func handleInstanceTimeouts(h *ChatbotMessageHandler) {
-	for {
-		for cp := range h.processMap {
-			select {
-			case <- h.processMap[cp].timeoutctx.Done():
-				//fmt.Println("aaa")
-				delete(h.processMap, cp)
-			} 
-		}
+func handleInstanceTimeouts(h *ChatbotMessageHandler, c *chatbotprocess) {
+	defer utils.CatchGoroutinePanic()
+	select {
+	case <- c.timeoutctx.Done():
+		//fmt.Println("aaa")
+		delete(h.processMap, c.author.ID)
+		time.Sleep(10*time.Second)
+		fmt.Println("Chatbot Process deleted")
 	}
 }
