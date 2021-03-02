@@ -22,7 +22,7 @@ func (c *Chatbot) Invokes() []string {
 }
 
 func (c *Chatbot) Description() string {
-	return "Starts a chat bot for you to communicate with! Required arguments: [start|stop]"
+	return "Starts a chat bot for you to communicate with! Required arguments: [start|stop]. ONLY LASTS 5 MINUTES. COMMAND LIABLE TO BE REMOVED."
 }
 
 func (c *Chatbot) AdminRequired() bool {

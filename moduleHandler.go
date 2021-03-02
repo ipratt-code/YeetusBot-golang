@@ -23,12 +23,8 @@ type ExportedCmdHandler struct {
 }
 
 func registerEvents(s *discordgo.Session) {
-	joinLeaveHandler := events.NewJoinLeaveHandler()
-	s.AddHandler(joinLeaveHandler.HandlerJoin)
-	s.AddHandler(joinLeaveHandler.HandlerLeave)
 
 	s.AddHandler(events.NewReadyHandler().Handler)
-	s.AddHandler(events.NewMessageHandler().Handler)
 
 	// add command module event listeners
 	s.AddHandler(chatbot.NewMessageHandler().Handler)
@@ -56,6 +52,9 @@ func registerCommands(s *discordgo.Session, cfg *config.Config) {
 	cmdHandler.RegisterCommand(&moderation.Kick{})
 	cmdHandler.RegisterCommand(&moderation.Ban{})
 	cmdHandler.RegisterCommand(&moderation.Unban{})
+	cmdHandler.RegisterCommand(&moderation.Mute{})
+	cmdHandler.RegisterCommand(&moderation.Unmute{})
+	cmdHandler.RegisterCommand(&moderation.Setup{})
 	cmdHandler.RegisterCommand(&messages.Clear{})
 	cmdHandler.RegisterCommand(&chatbot.Chatbot{})
 	cmdHandler.RegisterCommand(&reddit.Meme{})

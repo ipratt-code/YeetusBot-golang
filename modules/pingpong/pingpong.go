@@ -33,6 +33,13 @@ func NewMessageHandler() *PingPongMessageHandler {
 	return &PingPongMessageHandler{}
 }
 
+func (h *PingPongMessageHandler) Check(m *discordgo.Message) bool{
+	if strings.Contains(strings.ToLower(m.Content), "ping") {
+		return true
+	}
+	return false
+}
+
 func (h *PingPongMessageHandler) Handler(s *discordgo.Session, e *discordgo.MessageCreate) {
 	if strings.Contains(strings.ToLower(e.Message.Content), "ping") {
 		_, _ = s.ChannelMessageSend(e.Message.ChannelID, "Pong!")

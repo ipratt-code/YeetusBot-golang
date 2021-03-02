@@ -29,9 +29,7 @@ func (c *Unban) Exec(ctx *commands.Context) (err error) {
 	var reason string
 	if len(ctx.Args) < 1 {
 		return cmdErrors.NeedRequiredArgumentsError([]string{"User"})
-	}else if len(ctx.Args) < 2 {
-		reason = "No reasson supplied"
-	}else if len(ctx.Args) >= 3{
+	}else if len(ctx.Args) >= 1{
 		indx := 0
 		for idx, str := range ctx.Args {
 			if strings.ContainsAny(str, "#") {
@@ -44,6 +42,7 @@ func (c *Unban) Exec(ctx *commands.Context) (err error) {
 		reason = strings.Join(reasonList, " ")
 	}
 	userSplit := strings.Split(usrFull, "#")
+	//fmt.Printf("%v\n%v\n%v\n", ctx.Args, usrFull, userSplit)
 	if len(userSplit) < 2 || len(userSplit) > 3 {
 		return cmdErrors.BadArgumentsError([]string{"User (<username>#<discriminator>)"})
 	}
