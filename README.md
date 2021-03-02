@@ -1,4 +1,4 @@
-# YeetusBot-golang
+# YeetusBot
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/ipratt-code/YeetusBot-golang/graphs/commit-activity)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ipratt-code/YeetusBot-golang)](https://goreportcard.com/report/github.com/ipratt-code/YeetusBot-golang)
 [![made-with-Go](https://img.shields.io/badge/Made%20with-Go-1f425f.svg)](http://golang.org)
