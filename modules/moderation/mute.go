@@ -3,7 +3,7 @@ package moderation
 import (
 	"fmt"
 	"main/internal/commands"
-	//"main/internal/utils"
+	"main/internal/utils"
 	"github.com/bwmarrin/discordgo"
 	"main/internal/cmdErrors"
 	"strings"
@@ -20,10 +20,16 @@ func (c *Mute) Description() string {
 }
 
 func (c *Mute) AdminRequired() bool {
-	return true
+	return false
+}
+
+func (c *Mute) PermissionsRequired() (bool, uint) {
+	return true, discordgo.PermissionVoiceMuteMembers
 }
 
 func (c *Mute) Exec(ctx *commands.Context) (err error) {
+	defer utils.CatchGoroutinePanic()
+	//fmt.Printf("%v\n", ctx.Args)
 	roles, err := ctx.Session.GuildRoles(ctx.Message.GuildID)
 	if err != nil {
 		return err
@@ -35,14 +41,18 @@ func (c *Mute) Exec(ctx *commands.Context) (err error) {
 			//fmt.Printf("%v\n", mutedRole)
 		}
 	}
+	//print("1\n")
 	if mutedRole == nil {
 		return fmt.Errorf("You need to create a @muted role! (make sure the role is lower than the highest role this bot has)")
 	}
 	if len(ctx.Args) < 1 {
 		return cmdErrors.NeedRequiredArgumentsError([]string{"User (mention a user)"})
 	}
-	id := ctx.Args[0][3:len(ctx.Args[0])-1]
+	//print("2\n")
+	id := utils.ParseIDFromMention(ctx.Args[0])
 	err = ctx.Session.GuildMemberRoleAdd(ctx.Message.GuildID, id, mutedRole.ID)
-	//fmt.Printf("%v\n", err.Error())
+	if err != nil {
+		fmt.Printf("%v\n", err.Error())
+	}
 	return err
 }

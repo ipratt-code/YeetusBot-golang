@@ -19,6 +19,11 @@ func (c *Meme) AdminRequired() bool {
 	return false
 }
 
+func (c *Meme) PermissionsRequired() (bool, uint) {
+	return false, 0
+}
+
+
 func (c *Meme) Exec(ctx *commands.Context) (err error) {
 	post, err := redditRandomRetrieve([]string{"dankmemes", "memes"}, 20)
 	if err != nil {

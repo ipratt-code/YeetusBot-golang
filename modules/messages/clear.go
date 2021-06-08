@@ -5,6 +5,7 @@ import (
 	"main/internal/utils"
 	"main/internal/cmdErrors"
 	"strconv"
+	"github.com/bwmarrin/discordgo"
 	"fmt"
 )
 
@@ -21,6 +22,10 @@ func (c *Clear) Description() string {
 
 func (c *Clear) AdminRequired() bool {
 	return true
+}
+
+func (c *Clear) PermissionsRequired() (bool, uint) {
+	return true, discordgo.PermissionManageMessages
 }
 
 func (c *Clear) Exec(ctx *commands.Context) (err error) {

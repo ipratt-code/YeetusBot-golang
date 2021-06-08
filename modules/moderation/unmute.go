@@ -3,7 +3,7 @@ package moderation
 import (
 	"fmt"
 	"main/internal/commands"
-	//"main/internal/utils"
+	"main/internal/utils"
 	"github.com/bwmarrin/discordgo"
 	"main/internal/cmdErrors"
 	"strings"
@@ -23,7 +23,14 @@ func (c *Unmute) AdminRequired() bool {
 	return true
 }
 
+func (c *Unmute) PermissionsRequired() (bool, uint) {
+	return true, discordgo.PermissionVoiceMuteMembers
+}
+
+
 func (c *Unmute) Exec(ctx *commands.Context) (err error) {
+	defer utils.CatchGoroutinePanic()
+	//fmt.Printf("%v\n", ctx.Args)
 	roles, err := ctx.Session.GuildRoles(ctx.Message.GuildID)
 	if err != nil {
 		return err
@@ -41,8 +48,10 @@ func (c *Unmute) Exec(ctx *commands.Context) (err error) {
 	if len(ctx.Args) < 1 {
 		return cmdErrors.NeedRequiredArgumentsError([]string{"User (mention a user)"})
 	}
-	id := ctx.Args[0][3:len(ctx.Args[0])-1]
+	id := utils.ParseIDFromMention(ctx.Args[0])
 	err = ctx.Session.GuildMemberRoleRemove(ctx.Message.GuildID, id, mutedRole.ID)
-	//fmt.Printf("%v\n", err.Error())
+	if err != nil {
+		fmt.Printf("%v\n", err.Error())
+	}
 	return err
 }

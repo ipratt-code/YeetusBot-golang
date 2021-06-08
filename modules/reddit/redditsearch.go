@@ -20,6 +20,11 @@ func (c *Redditsearch) AdminRequired() bool {
 	return false
 }
 
+func (c *Redditsearch) PermissionsRequired() (bool, uint) {
+	return false, 0
+}
+
+
 func (c *Redditsearch) Exec(ctx *commands.Context) (err error) {
 	arg := strings.Join(ctx.Args, "+")
 	post, err := redditRandomRetrieve([]string{arg}, 20)

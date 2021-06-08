@@ -23,6 +23,10 @@ func (c *Kick) AdminRequired() bool {
 	return true
 }
 
+func (c *Kick) PermissionsRequired() (bool, uint) {
+	return true, discordgo.PermissionKickMembers
+}
+
 func (c *Kick) Exec(ctx *commands.Context) (err error) {
 	reasonList := []string{}
 	var reason string
@@ -39,7 +43,7 @@ func (c *Kick) Exec(ctx *commands.Context) (err error) {
 		return fmt.Errorf("You can't run this command on everyone!")
 	}
 	
-	id := ctx.Args[0][3:len(ctx.Args[0])-1]
+	id := utils.ParseIDFromMention(ctx.Args[0])
 	usr := utils.GetUserByID(ctx, id)
 	msgEmb := &discordgo.MessageEmbed{}
 	msgEmb.Title = fmt.Sprintf("%v#%v was kicked!", usr.Username, usr.Discriminator)

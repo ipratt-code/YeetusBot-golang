@@ -3,6 +3,7 @@ package help
 import (
 	"github.com/bwmarrin/discordgo"
 	"main/internal/commands"
+	//"fmt"
 )
 
 type Help struct{}
@@ -19,6 +20,11 @@ func (c *Help) AdminRequired() bool {
 	return false
 }
 
+func (c *Help) PermissionsRequired() (bool, uint) {
+	return false, 0
+}
+
+
 func strlistfmt(l []string) string {
 	fmtstr := ""
 	for _, item := range l {
@@ -29,16 +35,23 @@ func strlistfmt(l []string) string {
 
 // This is the help function to display the help message. Change it as you wish.
 func (c *Help) Exec(ctx *commands.Context) error{
-	msgEmb := &discordgo.MessageEmbed{}
-	msgEmb.Title = "YeetusBot Help Panel"
-	msgEmb.Color = 0xbad8eb
+	newDM, _ := ctx.Session.UserChannelCreate(ctx.Message.Author.ID)
+	
+	helpEmb := &discordgo.MessageEmbed{}
+	helpEmb.Title = "YeetusBot Help Panel"
+	helpEmb.Color = 0xbad8eb
 	for _, cmd := range ctx.Handler.CmdInstances {
-		msgEmb.Fields = append(msgEmb.Fields, &discordgo.MessageEmbedField{
+		helpEmb.Fields = append(helpEmb.Fields, &discordgo.MessageEmbedField{
 			Name: strlistfmt(cmd.Invokes()),
 			Value: cmd.Description(),
 		})
 	}
-
-	_, err := ctx.Session.ChannelMessageSendEmbed(ctx.Message.ChannelID, msgEmb)
+	_, err := ctx.Session.ChannelMessageSendEmbed(newDM.ID, helpEmb)
+	
+	msgEmb := &discordgo.MessageEmbed{}
+	msgEmb.Title = "Don't worry, help is on the way!"
+	msgEmb.Color = 0xbad8eb
+	msgEmb.Description = "Check your DMs, " +  ctx.Message.Author.Mention() + "!"
+	_, err = ctx.Session.ChannelMessageSendEmbed(ctx.Message.ChannelID, msgEmb)
 	return err
 }

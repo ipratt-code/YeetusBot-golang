@@ -15,6 +15,7 @@ import (
 	"main/modules/messages"
 	"main/modules/moderation"
 	"main/modules/pingpong"
+	"main/modules/nou"
 	"main/modules/reddit"
 )
 
@@ -29,6 +30,7 @@ func registerEvents(s *discordgo.Session) {
 	// add command module event listeners
 	s.AddHandler(chatbot.NewMessageHandler().Handler)
 	s.AddHandler(pingpong.NewMessageHandler().Handler)
+	s.AddHandler(nou.NewMessageHandler().Handler)
 }
 
 func registerCommands(s *discordgo.Session, cfg *config.Config) {
@@ -54,7 +56,7 @@ func registerCommands(s *discordgo.Session, cfg *config.Config) {
 	cmdHandler.RegisterCommand(&moderation.Unban{})
 	cmdHandler.RegisterCommand(&moderation.Mute{})
 	cmdHandler.RegisterCommand(&moderation.Unmute{})
-	cmdHandler.RegisterCommand(&moderation.Setup{})
+	//cmdHandler.RegisterCommand(&moderation.Setup{})
 	cmdHandler.RegisterCommand(&messages.Clear{})
 	cmdHandler.RegisterCommand(&chatbot.Chatbot{})
 	cmdHandler.RegisterCommand(&reddit.Meme{})
@@ -62,6 +64,7 @@ func registerCommands(s *discordgo.Session, cfg *config.Config) {
 	cmdHandler.RegisterCommand(&reddit.Redditsearch{})
 	cmdHandler.RegisterCommand(&reddit.Eyebleach{})
 	cmdHandler.RegisterCommand(&reddit.Satisfying{})
+	cmdHandler.RegisterCommand(&nou.Nou{})
 	cmdHandler.RegisterCommand(&pingpong.PingPong{})
 
 	// register the middleware to execute commands

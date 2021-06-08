@@ -19,6 +19,11 @@ func (c *Eyebleach) AdminRequired() bool {
 	return false
 }
 
+func (c *Eyebleach) PermissionsRequired() (bool, uint) {
+	return false, 0
+}
+
+
 func (c *Eyebleach) Exec(ctx *commands.Context) (err error) {
 	post, err := redditRandomRetrieve([]string{"eyebleach", "aww"}, 20)
 	if err != nil {

@@ -1,13 +1,15 @@
 package moderation
 
 import (
-	//"fmt"
+	"fmt"
 	"main/internal/commands"
-	//"main/internal/utils"
-	//"github.com/bwmarrin/discordgo"
+	"main/internal/utils"
+	"github.com/bwmarrin/discordgo"
 	//"main/internal/cmdErrors"
 	//"strings"
 )
+
+
 
 type Setup struct{}
 
@@ -22,11 +24,17 @@ func (c *Setup) Description() string {
 }
 
 func (c *Setup) AdminRequired() bool {
-	return true
+	return false
+}
+
+func (c *Setup) PermissionsRequired() (bool, uint) {
+	return true, discordgo.PermissionAdministrator
 }
 
 func (c *Setup) Exec(ctx *commands.Context) (err error) {
-	//botID := ctx.Session.Application.Bot.ID
+	botID := "746507703635148901"
+	botAsGuildMember := utils.GetMemberByID(ctx, botID)
+	fmt.Printf("%+v\n", botAsGuildMember.Roles)
 	//role perms for nothing is == 1024
 	//fmt.Printf("%+v\n", mutedRole)
 	return err

@@ -6,7 +6,7 @@ import (
 	"main/internal/commands"
 )
 
-func GetUserByID(ctx *commands.Context, id string) *discordgo.User{
+func GetUserByID(ctx *commands.Context, id string) *discordgo.User {
 	afterID := ""
 	usrList, err := ctx.Session.GuildMembers(ctx.Message.GuildID, afterID, 1000)
 	for idx, usr := range usrList {

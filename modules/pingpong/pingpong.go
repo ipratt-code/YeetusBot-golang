@@ -21,6 +21,11 @@ func (c *PingPong) AdminRequired() bool {
 	return false
 }
 
+func (c *PingPong) PermissionsRequired() (bool, uint) {
+	return false, 0
+}
+
+
 func (c *PingPong) Exec(ctx *commands.Context) (err error) {
 	_, err = ctx.Session.ChannelMessageSend(ctx.Message.ChannelID, "Pong!")
 	return err
@@ -41,7 +46,10 @@ func (h *PingPongMessageHandler) Check(m *discordgo.Message) bool{
 }
 
 func (h *PingPongMessageHandler) Handler(s *discordgo.Session, e *discordgo.MessageCreate) {
-	if strings.Contains(strings.ToLower(e.Message.Content), "ping") {
+	if strings.Contains(strings.ToLower(e.Message.Content), "ping") && !e.Message.Author.Bot{
 		_, _ = s.ChannelMessageSend(e.Message.ChannelID, "Pong!")
+	}else if strings.Contains(strings.ToLower(e.Message.Content), "pong") && !e.Message.Author.Bot{
+		_, _ = s.ChannelMessageSend(e.Message.ChannelID, "Ping!")
+
 	}
 }

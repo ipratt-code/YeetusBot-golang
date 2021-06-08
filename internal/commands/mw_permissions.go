@@ -5,7 +5,10 @@ import "github.com/bwmarrin/discordgo"
 type MwPermissions struct{}
 
 func (mw *MwPermissions) Exec(ctx *Context, cmd Command) (next bool, err error) {
-	if !cmd.AdminRequired() {
+	cmdpermstrue, cmdperms := cmd.PermissionsRequired()
+	
+	if /*!cmd.AdminRequired() && */!cmdpermstrue{
+		//print("cum\n")
 		next = true
 		return
 	}
@@ -33,6 +36,10 @@ func (mw *MwPermissions) Exec(ctx *Context, cmd Command) (next bool, err error) 
 	}
 
 	for _, rID := range ctx.Message.Member.Roles {
+		if role, ok := roleMap[rID]; ok && role.Permissions&int64(cmdperms) > 0 {
+			next = true
+			break
+		}
 		if role, ok := roleMap[rID]; ok && role.Permissions&discordgo.PermissionAdministrator > 0 {
 			next = true
 			break

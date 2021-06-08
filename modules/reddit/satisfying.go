@@ -19,6 +19,11 @@ func (c *Satisfying) AdminRequired() bool {
 	return false
 }
 
+func (c *Satisfying) PermissionsRequired() (bool, uint) {
+	return false, 0
+}
+
+
 func (c *Satisfying) Exec(ctx *commands.Context) (err error) {
 	post, err := redditRandomRetrieve([]string{"satisfying", "oddlysatisfying"}, 20)
 	if err != nil {

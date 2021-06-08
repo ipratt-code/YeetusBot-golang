@@ -2,7 +2,7 @@ package commands
 
 import (
 	"strings"
-	//"fmt"
+	"fmt"
 	"github.com/bwmarrin/discordgo"
 	//"github.com/Clinet/discordgo-embed"
 )
@@ -42,6 +42,11 @@ func (c *CommandHandler) RegisterMiddleware(mw Middleware) {
 }
 
 func (c *CommandHandler) HandleMessage(s *discordgo.Session, e *discordgo.MessageCreate) {
+	defer func(){
+		if r := recover(); r != nil {
+			fmt.Println("Recovering from panic:", r)
+		}
+	}()
 	if e.Author.ID == s.State.User.ID || e.Author.Bot || !strings.HasPrefix(e.Content, c.prefix) {
 		return
 	}

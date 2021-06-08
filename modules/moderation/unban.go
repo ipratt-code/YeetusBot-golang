@@ -16,12 +16,17 @@ func (c *Unban) Invokes() []string {
 }
 
 func (c *Unban) Description() string {
-	return "Bans a user from the discord server. Required arguments: User (format <username>#<discriminator>), Length of time banned (pass `forever` to ban someone indefinitely)"
+	return "Unans a user from the discord server. Required arguments: User (format <username>#<discriminator>)"
 }
 
 func (c *Unban) AdminRequired() bool {
 	return true
 }
+
+func (c *Unban) PermissionsRequired() (bool, uint) {
+	return true, discordgo.PermissionBanMembers
+}
+
 
 func (c *Unban) Exec(ctx *commands.Context) (err error) {
 	usrFull := ""

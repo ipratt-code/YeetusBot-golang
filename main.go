@@ -11,7 +11,7 @@ import (
 	"main/webserver"
 )
 
-func main() {
+func main() {	
 	const fileName = "./config/config.json"
 
 	cfg, err := config.ParseConfigFromJSONFile(fileName)

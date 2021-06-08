@@ -19,6 +19,11 @@ func (c *Blursedimages) AdminRequired() bool {
 	return false
 }
 
+func (c *Blursedimages) PermissionsRequired() (bool, uint) {
+	return false, 0
+}
+
+
 func (c *Blursedimages) Exec(ctx *commands.Context) (err error) {
 	post, err := redditRandomRetrieve([]string{"blursedimages"}, 20)
 	if err != nil {

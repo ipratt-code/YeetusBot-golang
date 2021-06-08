@@ -29,6 +29,11 @@ func (c *Chatbot) AdminRequired() bool {
 	return false
 }
 
+func (c *Chatbot) PermissionsRequired() (bool, uint) {
+	return false, 0
+}
+
+
 func strlistfmt(l []string) string {
 	fmtstr := ""
 	for _, item := range l {
@@ -39,6 +44,9 @@ func strlistfmt(l []string) string {
 
 // This is the help function to display the help message. Change it as you wish.
 func (c *Chatbot) Exec(ctx *commands.Context) error {
+	if len(ctx.Args) < 1 {
+		return cmdErrors.NeedRequiredArgumentsError([]string{"start|stop"})
+	}
 	if (strings.ToLower(ctx.Args[0])) == "start" {
 		cmdchannel <- "start " + ctx.Message.Author.ID + " " + ctx.Message.ChannelID
 		return nil
